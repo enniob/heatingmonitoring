@@ -1,4 +1,4 @@
-# How to run Oiltank on a Raspberry Pi
+# How to run Heating Monitoring on a Raspberry Pi
 
 This guide will walk you through setting up the Oiltank application on a Raspberry Pi. The backend will be configured to run as a service, and the frontend will be served by a web server.
 
@@ -7,6 +7,45 @@ This guide will walk you through setting up the Oiltank application on a Raspber
 *   A Raspberry Pi with Raspberry Pi OS (or any other Debian-based Linux distribution).
 *   Node.js and npm installed.
 *   Git installed.
+
+## Automated Setup with Script
+
+You can automate the entire setup process using the provided `setup-raspi.sh` script.
+
+### 1. Download the Script
+
+First, ensure you have `git` installed:
+```bash
+sudo apt-get update
+sudo apt-get install -y git
+```
+
+Then, clone the repository and navigate to its directory:
+```bash
+git clone https://github.com/enniob/heatingmonitoring.git
+cd heatingmonitoring
+```
+
+### 2. Configure the Script
+
+Edit the `setup-raspi.sh` file to configure the `PROJECT_PARENT_DIR` (where the application will be cloned) and `RASPI_IP` variables.
+
+```bash
+nano setup-raspi.sh
+```
+
+### 3. Run the Script
+
+Make the script executable and run it:
+
+```bash
+chmod +x setup-raspi.sh
+sudo ./setup-raspi.sh
+```
+
+The script will handle all the steps from installing Node.js and npm, cloning the repository, installing dependencies, building the frontend, setting up the backend as a systemd service, and configuring nginx.
+
+---
 
 ## Installation
 
@@ -33,8 +72,8 @@ sudo apt-get install nodejs -y
 ### 2. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/oiltank.git
-cd oiltank
+git clone https://github.com/enniob/heatingmonitoring
+cd heatingmonitoring
 ```
 
 ### 3. Install Dependencies
@@ -65,20 +104,20 @@ We will use `systemd` to manage the backend service.
 Create a new service file for the backend:
 
 ```bash
-sudo nano /etc/systemd/system/oiltank-backend.service
+sudo nano /etc/systemd/system/heatingmonitoring-backend.service
 ```
 
-Add the following content to the file. **Remember to replace `/path/to/oiltank` with the actual path to the `oiltank` directory on your Raspberry Pi.**
+Add the following content to the file. **Remember to replace `/path/to/heatingmonitoring` with the actual path to the `heatingmonitoring` directory on your Raspberry Pi.**
 
 ```ini
 [Unit]
-Description=Oiltank Backend Service
+Description=Heating Monitoring Backend Service
 After=network.target
 
 [Service]
 User=pi
 Group=pi
-WorkingDirectory=/path/to/oiltank/backend
+WorkingDirectory=/path/to/heatingmonitoring/backend
 ExecStart=/usr/bin/node src/server.js
 Restart=always
 
@@ -92,14 +131,14 @@ Now, enable and start the service:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable oiltank-backend.service
-sudo systemctl start oiltank-backend.service
+sudo systemctl enable heatingmonitoring-backend.service
+sudo systemctl start heatingmonitoring-backend.service
 ```
 
 You can check the status of the service with:
 
 ```bash
-sudo systemctl status oiltank-backend.service
+sudo systemctl status heatingmonitoring-backend.service
 ```
 
 ## Web Server Setup (nginx)
@@ -118,17 +157,17 @@ sudo apt-get install -y nginx
 Create a new nginx configuration file:
 
 ```bash
-sudo nano /etc/nginx/sites-available/oiltank
+sudo nano /etc/nginx/sites-available/heatingmonitoring
 ```
 
-Add the following content to the file. **Remember to replace `/path/to/oiltank` with the actual path to the `oiltank` directory on your Raspberry Pi.**
+Add the following content to the file. **Remember to replace `/path/to/heatingmonitoring` with the actual path to the `heatingmonitoring` directory on your Raspberry Pi.**
 
 ```nginx
 server {
     listen 80;
     server_name your_raspberry_pi_ip;
 
-    root /path/to/oiltank/frontend/dist;
+    root /path/to/heatingmonitoring/frontend/dist;
     index index.html;
 
     location / {
@@ -149,7 +188,7 @@ server {
 ### 3. Enable the new configuration
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/oiltank /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/heatingmonitoring /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl restart nginx
