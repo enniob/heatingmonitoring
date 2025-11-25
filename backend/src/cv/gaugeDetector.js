@@ -32,7 +32,23 @@ const cvReady = new Promise((resolve) => {
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+const { detectWithFallback } = require("./visionService");
+
 const detectGaugeRatio = async (imageData) => {
+  if (!imageData) {
+    throw new Error("Image data required for detection");
+  }
+
+  const visionResult = await detectWithFallback(imageData);
+  if (visionResult) {
+    return visionResult;
+  }
+
+  console.log("Falling back to OpenCV");
+  return detectGaugeRatioCV(imageData);
+};
+
+const detectGaugeRatioCV = async (imageData) => {
   if (!imageData) {
     throw new Error("Image data required for detection");
   }
@@ -76,8 +92,8 @@ const detectGaugeRatio = async (imageData) => {
 
     return {
       ratio,
-      angle,
       confidence: lines.rows ? clamp(selected.score, 0, 1) : 0.5,
+      source: "opencv",
     };
   } finally {
     mat.delete();
