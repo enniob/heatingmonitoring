@@ -22,9 +22,33 @@ cd "$PROJECT_DIR/backend"
 npm install
 
 # Setup .env file if it doesn't exist
-if [ ! -f ".env" ]; then
-  echo "Creating .env from sample.env..."
-  cp sample.env .env
+if [ ! -f ".env" ]; then # This check runs inside $PROJECT_DIR/backend
+  echo "Creating .env file for backend..."
+
+  # Prompt for Google Cloud credentials path
+  read -p "Enter the path to your Google service account JSON key file (e.g., ../service-account-key.json): " GOOGLE_CRED_PATH
+  
+  # Use current .env (if it exists) or sample.env as base
+  ENV_CONTENT=""
+  if [ -f "sample.env" ]; then # sample.env is in the current directory (backend)
+    ENV_CONTENT=$(cat "sample.env")
+  fi
+
+  # Replace GOOGLE_APPLICATION_CREDENTIALS line if path was provided
+  if [ -n "$GOOGLE_CRED_PATH" ]; then
+    ENV_CONTENT=$(echo "$ENV_CONTENT" | sed "s|^GOOGLE_APPLICATION_CREDENTIALS=.*|GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CRED_PATH|")
+  fi
+
+  # Default PORT if not in sample.env or not set
+  # Note: `grep -q` is for quiet mode, returns 0 if found, 1 if not
+  if ! echo "$ENV_CONTENT" | grep -q "^PORT="; then
+    ENV_CONTENT="${ENV_CONTENT}"$'\n'"PORT=4000"
+  fi
+
+  echo "$ENV_CONTENT" > ".env" # .env is created in the current directory (backend)
+  echo ".env file created with your Google credentials path."
+else
+  echo ".env file already exists in backend/. Skipping .env creation."
 fi
 
 # Update frontend dependencies and rebuild
