@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # This script automates the setup of the Heating Monitoring application on a Raspberry Pi.
 
 # --- Configuration ---
@@ -11,6 +10,7 @@ RASPI_IP="your_raspberry_pi_ip"
 
 # --- Do not edit below this line ---
 PROJECT_DIR="$PROJECT_PARENT_DIR/heatingmonitoring"
+WEB_ROOT="/var/www/heatingmonitoring"
 
 # Update and install dependencies
 echo "Updating and installing dependencies..."
@@ -46,6 +46,16 @@ cd "$PROJECT_DIR/frontend"
 npm install
 npm run build
 
+# Create web root directory and copy built files
+echo "Setting up web root directory..."
+sudo mkdir -p "$WEB_ROOT"
+sudo cp -r "$PROJECT_DIR/frontend/dist/"* "$WEB_ROOT/"
+
+# Fix permissions for nginx
+echo "Setting proper permissions..."
+sudo chown -R www-data:www-data "$WEB_ROOT"
+sudo chmod -R 755 "$WEB_ROOT"
+
 # Create systemd service file
 echo "Creating systemd service file..."
 sudo bash -c "cat > /etc/systemd/system/heatingmonitoring-backend.service" <<EOF
@@ -76,14 +86,14 @@ sudo bash -c "cat > /etc/nginx/sites-available/heatingmonitoring" <<EOF
 server {
     listen 80;
     server_name $RASPI_IP;
-
-    root $PROJECT_DIR/frontend/dist;
+    
+    root $WEB_ROOT;
     index index.html;
-
+    
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files \$uri \$uri/ /index.html;
     }
-
+    
     location /api {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
