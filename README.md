@@ -49,6 +49,31 @@ npm run dev           # launches Vite dev server on http://localhost:5173
 
 The web UI proxies `/api` requests to the backend (see `vite.config.js`) so both apps must run simultaneously for full functionality.
 
+### Google Security JSON
+
+If your project requires interaction with Google Cloud services (e.g., Google Cloud Vision API, Google Cloud Storage), you will need to obtain a Google Service Account Key in JSON format. Follow these steps:
+
+1.  **Create a Google Cloud Project**: If you don't have one, create a new project in the Google Cloud Console.
+2.  **Enable necessary APIs**: Ensure that the Google APIs your application needs (e.g., Cloud Vision API) are enabled for your project.
+3.  **Create a Service Account**:
+    *   Navigate to "IAM & Admin" > "Service accounts" in the Google Cloud Console.
+    *   Click "CREATE SERVICE ACCOUNT".
+    *   Provide a service account name and description.
+4.  **Grant Permissions**:
+    *   Grant the service account the necessary roles for your project (e.g., "Cloud Vision API User", "Storage Object Admin"). Be judicious with permissions, granting only what is required.
+5.  **Create and Download Key**:
+    *   After creating the service account, click on its email address.
+    *   Go to the "KEYS" tab.
+    *   Click "ADD KEY" > "Create new key".
+    *   Select "JSON" as the key type and click "CREATE".
+    *   The JSON key file will be downloaded to your computer.
+6.  **Securely Store the Key**:
+    *   Rename the downloaded JSON file (e.g., `service-account-key.json`).
+    *   Place this file in a secure location within your project directory, typically outside of version control (e.g., `.gitignore` it). The backend code will need to be configured to locate this file, usually by setting the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of this JSON file.
+
+    Example environment variable setting (for local development):
+    `export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"`
+
 ### Production build
 
 ```bash
