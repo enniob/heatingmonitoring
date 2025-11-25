@@ -3,7 +3,16 @@
 
 # --- Configuration ---
 # Set the project directory. This is where the application will be cloned.
-PROJECT_PARENT_DIR="/home/pi"
+# Prompt user for PROJECT_PARENT_DIR if not already set or provided
+if [ -z "$PROJECT_PARENT_DIR" ]; then
+    read -p "Enter the parent directory for the application (e.g., /home/pi): " USER_PROJECT_PARENT_DIR
+    if [ -z "$USER_PROJECT_PARENT_DIR" ]; then
+        PROJECT_PARENT_DIR="/home/pi" # Default value
+        echo "No parent directory entered, using default: $PROJECT_PARENT_DIR"
+    else
+        PROJECT_PARENT_DIR="$USER_PROJECT_PARENT_DIR"
+    fi
+fi
 # Set the IP address of your Raspberry Pi.
 RASPI_IP="your_raspberry_pi_ip"
 # --- End of Configuration ---
