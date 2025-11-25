@@ -21,3 +21,6 @@ yarn-error.log*
 
 # Local database
 backend/data/oiltracker.sqlite
+
+*key.json
+
