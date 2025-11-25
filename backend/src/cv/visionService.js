@@ -5,6 +5,7 @@ const visionClient = new ImageAnnotatorClient();
 
 const detectWithGoogleVision = async (imageData) => {
   console.log("Attempting detection with Google Vision");
+  console.log(`Image data size: ${imageData.length} bytes`);
 
   const image = {
     content: imageData.includes(",")
@@ -14,6 +15,7 @@ const detectWithGoogleVision = async (imageData) => {
 
   const [result] = await visionClient.objectLocalization({ image });
   const objects = result.localizedObjectAnnotations;
+  console.log("Objects detected by Google Vision:", objects);
 
   if (!objects.length) {
     throw new Error("No objects detected by Google Vision");
@@ -26,6 +28,7 @@ const detectWithGoogleVision = async (imageData) => {
   if (!gaugeObject) {
     throw new Error("No gauge detected by Google Vision");
   }
+  console.log("Gauge object detected:", gaugeObject);
 
   // This is a very naive implementation. We are assuming the gauge is centered
   // and the needle is pointing up for full and down for empty.
@@ -36,6 +39,8 @@ const detectWithGoogleVision = async (imageData) => {
   // Assuming the gauge is vertical, we can calculate the ratio from the y-center.
   // This is a placeholder logic and needs to be improved.
   const ratio = 1 - yCenter;
+
+  console.log(`Calculated ratio: ${ratio}, Confidence: ${gaugeObject.score}`);
 
   return {
     ratio,

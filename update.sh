@@ -21,6 +21,12 @@ echo "Updating backend dependencies..."
 cd "$PROJECT_DIR/backend"
 npm install
 
+# Setup .env file if it doesn't exist
+if [ ! -f ".env" ]; then
+  echo "Creating .env from sample.env..."
+  cp sample.env .env
+fi
+
 # Update frontend dependencies and rebuild
 echo "Updating frontend dependencies and rebuilding..."
 cd "$PROJECT_DIR/frontend"
