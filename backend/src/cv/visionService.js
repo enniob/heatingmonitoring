@@ -4,16 +4,17 @@ const { ImageAnnotatorClient } = require("@google-cloud/vision");
 const visionClient = new ImageAnnotatorClient();
 
 const detectWithGoogleVision = async (imageData) => {
+  console.log("Entering detectWithGoogleVision. Image data received:", imageData ? "Yes" : "No");
   console.log("Attempting detection with Google Vision");
   console.log(`Image data size: ${imageData.length} bytes`);
 
   const image = {
-    content: imageData.includes(",")
-      ? imageData.split(",").pop()
-      : imageData,
+    content: imageData,
   };
 
+  console.log("Making Google Cloud Vision API call for object localization...");
   const [result] = await visionClient.objectLocalization({ image });
+  console.log("Google Cloud Vision API call successful. Raw result:", JSON.stringify(result, null, 2));
   const objects = result.localizedObjectAnnotations;
   console.log("Objects detected by Google Vision:", objects);
 
@@ -84,13 +85,8 @@ const detectWithFallback = async (imageData) => {
   try {
     return await detectWithGoogleVision(imageData);
   } catch (error) {
-    console.error("Google Vision detection failed:", error.message);
-    try {
-      return await detectWithTensorFlow(imageData);
-    } catch (error2) {
-      console.error("TensorFlow.js detection failed:", error2.message);
-      return null;
-    }
+    console.error("Google Vision API error:", error);
+    throw error;
   }
 };
 
