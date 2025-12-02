@@ -45,7 +45,7 @@ if [ ! -f ".env" ]; then # This check runs inside $PROJECT_DIR/backend
 
   # Replace GOOGLE_APPLICATION_CREDENTIALS line if path was provided
   if [ -n "$GOOGLE_CRED_PATH" ]; then
-    ENV_CONTENT=$(echo "$ENV_CONTENT" | sed "s|^GOOGLE_APPLICATION_CREDENTIALS=.*|GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CRED_PATH|")
+    ENV_CONTENT=$(echo "$ENV_CONTENT" | sed "s#^GOOGLE_APPLICATION_CREDENTIALS=.*#GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CRED_PATH#")
   fi
 
   # Default PORT if not in sample.env or not set

@@ -8,8 +8,12 @@ const detectWithGoogleVision = async (imageData) => {
   console.log("Attempting detection with Google Vision");
   console.log(`Image data size: ${imageData.length} bytes`);
 
+  const content = imageData.includes(",")
+    ? imageData.split(",").pop()
+    : imageData;
+
   const image = {
-    content: imageData,
+    content: content,
   };
 
   console.log("Making Google Cloud Vision API call for object localization...");
