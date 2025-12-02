@@ -20,9 +20,12 @@ const detectWithGoogleVision = async (imageData) => {
   const [result] = await visionClient.objectLocalization({ image });
   console.log("Google Cloud Vision API call successful. Raw result:", JSON.stringify(result, null, 2));
   const objects = result.localizedObjectAnnotations;
-  console.log("Objects detected by Google Vision:", objects);
+  console.log(
+    "Objects detected by Google Vision:",
+    objects.map((o) => o.name)
+  );
 
-  if (!objects.length) {
+  if (!objects || objects.length === 0) {
     throw new Error("No objects detected by Google Vision");
   }
 
@@ -31,7 +34,12 @@ const detectWithGoogleVision = async (imageData) => {
   const gaugeObject = objects.find((object) => object.name === "Gauge");
 
   if (!gaugeObject) {
-    throw new Error("No gauge detected by Google Vision");
+    const detectedObjectNames = objects.map((object) => object.name).join(", ");
+    throw new Error(
+      `No gauge detected by Google Vision. Detected objects: ${
+        detectedObjectNames || "None"
+      }`
+    );
   }
   console.log("Gauge object detected:", gaugeObject);
 
