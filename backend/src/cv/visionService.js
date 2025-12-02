@@ -31,7 +31,21 @@ const detectWithGoogleVision = async (imageData) => {
 
   // A more robust implementation would be to look for specific features of a gauge.
   // For now, we are just looking for a "Gauge" and assuming it is the most prominent object.
-  const gaugeObject = objects.find((object) => object.name === "Gauge");
+  const GAUGE_KEYWORDS = ["gauge", "meter", "indicator", "level", "dial"];
+  const matchingObjects = objects.filter((object) =>
+    GAUGE_KEYWORDS.some(keyword => object.name.toLowerCase().includes(keyword))
+  );
+
+  let gaugeObject = null;
+  if (matchingObjects.length > 0) {
+    gaugeObject = matchingObjects.sort((a, b) => b.score - a.score)[0];
+  } else if (objects.length > 0) {
+    console.log("No gauge-related keywords found. Considering the highest-scored object as a fallback.");
+    const highestScoredObject = objects.sort((a, b) => b.score - a.score)[0];
+    if (highestScoredObject.score > 0.5) {
+      gaugeObject = highestScoredObject;
+    }
+  }
 
   if (!gaugeObject) {
     const detectedObjectNames = objects.map((object) => object.name).join(", ");
@@ -102,8 +116,23 @@ const detectWithFallback = async (imageData) => {
   }
 };
 
+const testWithPlaceholder = async () => {
+  const placeholderImage = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAREDwAAAAFzPGAWAAAAEElEQVR42mP8z8AICwgwAAAAAAAAAAAAwB9B62nLAAAAAElFTkSuQmCC";
+  try {
+    const result = await detectWithGoogleVision(placeholderImage);
+    console.log("Test with placeholder successful:", result);
+  } catch (error) {
+    console.error("Test with placeholder failed:", error.message);
+  }
+};
+
+if (require.main === module) {
+  testWithPlaceholder();
+}
+
 module.exports = {
   detectWithFallback,
   detectWithGoogleVision,
   detectWithTensorFlow,
+  testWithPlaceholder,
 };
